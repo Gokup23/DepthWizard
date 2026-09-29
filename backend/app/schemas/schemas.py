@@ -45,6 +45,7 @@ class UploadResponse(BaseModel):
     dem_metadata: Optional[DEMMetadata] = None
     has_gcp: bool = False
     parsed_gcps: Optional[List[GCPItem]] = None
+    srtm_info: Optional[Dict[str, Any]] = None
     message: str
 
 class JobState(str, Enum):
@@ -98,7 +99,7 @@ class GCPCalibrationRequest(BaseModel):
     gcps: List[GCPItem]
 
 class CalibrationResult(BaseModel):
-    method: str  # "dem", "gcp", "scaled_estimate", "relative"
+    method: str  # "dem", "gcp", "relative"
     is_metric: bool
     scale: float
     offset: float
@@ -168,6 +169,7 @@ class ReconstructionSummary(BaseModel):
     assets: Dict[str, str]
     timing_seconds: Dict[str, float]
     device_used: str
+    model_used: Optional[str] = None
     elevation_histogram: Optional[List[Dict[str, Any]]] = None
     dimensions: Optional[PipelineDimensions] = None
     dataset_id: Optional[str] = None
@@ -211,6 +213,7 @@ class EvaluationMetrics(BaseModel):
     sample_count: int
     valid_pixel_count: int
     valid_pixel_pct: Optional[float] = None
+    overlap_fraction: Optional[float] = None
     reference_min: float
     reference_max: float
     predicted_min: float

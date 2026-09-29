@@ -8,6 +8,7 @@ interface FloodPlaneProps {
   maxElevation: number;
   worldXSpan: number;
   worldZSpan: number;
+  sceneHeight: number;
   exaggeration: number;
   visible: boolean;
 }
@@ -18,12 +19,13 @@ export const FloodPlane: React.FC<FloodPlaneProps> = ({
   maxElevation,
   worldXSpan,
   worldZSpan,
+  sceneHeight,
   exaggeration,
   visible
 }) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const relief = Math.max(1e-4, maxElevation - minElevation);
-  const sceneVerticalScale = 20.0 * exaggeration;
+  const sceneVerticalScale = sceneHeight * exaggeration;
   const worldY = ((waterElevation - minElevation) / relief) * sceneVerticalScale;
 
   useFrame(({ clock }) => {

@@ -1,3 +1,11 @@
+"""
+backend/tests/fixtures_generator.py
+
+WARNING: UNIT-TEST FIXTURES ONLY.
+Do NOT use this synthetic generator to produce demo data for the application.
+Always use real open image + DEM pairs (SIH reference repo, Copernicus/SRTM)
+for demonstrations and evaluations.
+"""
 import os
 import csv
 from pathlib import Path
@@ -8,7 +16,7 @@ from rasterio.transform import from_origin
 import cv2
 
 def create_samples():
-    base_dir = Path(__file__).resolve().parent.parent / "data" / "samples"
+    base_dir = Path(__file__).resolve().parent.parent.parent / "data" / "samples"
     
     # ----------------------------------------------------
     # 1. Himalayan Valley Sample

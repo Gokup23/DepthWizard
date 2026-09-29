@@ -352,6 +352,7 @@ export const ExplorerPage: React.FC = () => {
               maxElevation={heightfield.max_elevation}
               worldXSpan={heightfield.world_x_span}
               worldZSpan={heightfield.world_z_span}
+              sceneHeight={heightfield.scene_height}
               exaggeration={exaggeration}
               visible={isFloodActive}
             />
@@ -533,7 +534,7 @@ export const ExplorerPage: React.FC = () => {
             }`}
           >
             <Waves className="w-3.5 h-3.5" />
-            <span>Flood Sim</span>
+            <span>Inundation</span>
           </button>
         </div>
 
@@ -569,7 +570,7 @@ export const ExplorerPage: React.FC = () => {
           <div className="flex items-center justify-between border-b border-slate-800 pb-2">
             <div className="flex items-center space-x-2 text-blue-400 font-bold">
               <Waves className="w-4 h-4" />
-              <span>FLOOD THRESHOLD SIM</span>
+              <span>TOPOGRAPHIC INUNDATION SCREENING</span>
             </div>
             <button
               onClick={() => setIsFloodActive(false)}
@@ -600,7 +601,7 @@ export const ExplorerPage: React.FC = () => {
           <div className="p-2 rounded bg-blue-500/10 border border-blue-500/20 text-[10px] text-blue-300 flex items-start space-x-1.5">
             <AlertCircle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5 text-blue-400" />
             <span className="leading-tight">
-              Illustrative elevation-based visualization — not a hydrological forecast.
+              Illustrative elevation-based visualization.
             </span>
           </div>
         </div>

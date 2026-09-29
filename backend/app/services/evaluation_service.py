@@ -77,7 +77,8 @@ class EvaluationService:
         selected_metrics: Optional[List[str]] = None,
         crs: Optional[str] = None,
         transform: Optional[Any] = None,
-        strata_labels: Optional[Union[np.ndarray, Dict[str, np.ndarray]]] = None
+        strata_labels: Optional[Union[np.ndarray, Dict[str, np.ndarray]]] = None,
+        reference_path: Optional[Path] = None
     ) -> Tuple[
         EvaluationMetrics,
         Path, Path, Path, Path,
@@ -100,13 +101,22 @@ class EvaluationService:
         - Subsampled scatter plot coordinates
         - Scene stratification breakdown (Urban, Sparse, Hilly, Forest)
         """
-        # Ensure identical spatial grid
+        from app.services.geospatial_service import GeospatialService, SpatialOverlapError
+        
+        # Align grids
         if predicted_dsm.shape != reference_dsm.shape:
-            ref_aligned = cv2.resize(
-                reference_dsm,
-                (predicted_dsm.shape[1], predicted_dsm.shape[0]),
-                interpolation=cv2.INTER_LINEAR
-            )
+            if reference_path is not None and crs and transform:
+                try:
+                    ref_aligned = GeospatialService.reproject_match(
+                        reference_path=reference_path,
+                        target_shape=predicted_dsm.shape,
+                        target_crs_str=crs,
+                        target_transform_list=list(transform) if not isinstance(transform, list) else transform
+                    )
+                except Exception as e:
+                    raise SpatialOverlapError(f"Spatial alignment failed: {str(e)}")
+            else:
+                raise SpatialOverlapError("Spatial reference missing. Cannot align rasters of different shapes without CRS and bounds.")
         else:
             ref_aligned = reference_dsm
 
@@ -119,8 +129,13 @@ class EvaluationService:
         )
 
         n_valid = int(np.count_nonzero(valid))
+        total_pixels = int(predicted_dsm.size)
+        overlap_fraction = n_valid / max(1, total_pixels)
+        
+        if overlap_fraction < 0.50:
+            raise SpatialOverlapError(f"Insufficient spatial overlap: {overlap_fraction*100:.1f}%. Minimum 50% required.")
         if n_valid < 30:
-            raise ValueError(f"Insufficient valid overlapping pixels for evaluation ({n_valid} found). Both rasters must share coverage.")
+            raise SpatialOverlapError(f"Insufficient valid overlapping pixels for evaluation ({n_valid} found).")
 
         pred_vals = predicted_dsm[valid].astype(np.float64)
         ref_vals = ref_aligned[valid].astype(np.float64)
@@ -230,6 +245,7 @@ class EvaluationService:
             sample_count=n_valid,
             valid_pixel_count=n_valid,
             valid_pixel_pct=valid_pixel_pct,
+            overlap_fraction=round(overlap_fraction, 4),
             reference_min=round(float(np.min(ref_vals)), 2),
             reference_max=round(float(np.max(ref_vals)), 2),
             predicted_min=round(float(np.min(pred_vals)), 2),
